@@ -1,0 +1,14 @@
+{
+  "domain": "auchan",
+  "name": "Auchan",
+  "codeowners": [
+    "@Valembedded"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/Valembedded/auchan-home-assistant",
+  "issue_tracker": "https://github.com/Valembedded/auchan-home-assistant/issues",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}
