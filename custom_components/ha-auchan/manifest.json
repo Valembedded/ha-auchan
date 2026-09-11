@@ -5,6 +5,7 @@
     "@Valembedded"
   ],
   "config_flow": true,
+  "dependencies": ["http"],
   "documentation": "https://github.com/Valembedded/ha-auchan",
   "integration_type": "service",
   "iot_class": "cloud_polling",
