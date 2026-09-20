@@ -47,10 +47,18 @@ jobs:
         id: version
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            VERSION="${{ inputs.version }}"
-          else
+          if [[ "${{ github.event_name }}" == "push" ]]; then
             VERSION="${GITHUB_REF_NAME#v}"
+
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            VERSION="0.0.0-pr.${{ github.event.pull_request.number }}"
+
+          else
+            echo "Unsupported event: ${{ github.event_name }}"
+            exit 1
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
