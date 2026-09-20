@@ -1,0 +1,133 @@
+name: Inject version
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version à injecter pour le test"
+        required: true
+        default: "0.1.0-test"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # - name: Get version from tag
+      #   id: version
+      #   shell: bash
+      #   run: |
+      #     VERSION="${GITHUB_REF_NAME#v}"
+
+      #     if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
+      #       echo "Invalid version: $VERSION"
+      #       exit 1
+      #     fi
+
+      #     echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      #     echo "Version: $VERSION"
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Inject version into manifest
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("custom_components/auchan/manifest.json")
+
+          with path.open("r", encoding="utf-8") as file:
+              manifest = json.load(file)
+
+          manifest["version"] = os.environ["VERSION"]
+
+          with path.open("w", encoding="utf-8") as file:
+              json.dump(
+                  manifest,
+                  file,
+                  indent=2,
+                  ensure_ascii=False,
+              )
+              file.write("\n")
+
+          print(
+              f"Injected version "
+              f"{manifest['version']} into {path}"
+          )
+          PY
+
+      - name: Verify manifest
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("custom_components/auchan/manifest.json")
+
+          manifest = json.loads(
+              path.read_text(encoding="utf-8")
+          )
+
+          expected = os.environ["VERSION"]
+          actual = manifest.get("version")
+
+          if actual != expected:
+              raise RuntimeError(
+                  f"Version mismatch: {actual} != {expected}"
+              )
+
+          print(f"Manifest version OK: {actual}")
+          PY
+
+      - name: Create release archive
+        run: |
+          cd custom_components/auchan
+          zip -r ../../auchan.zip .
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create \
+            "${GITHUB_REF_NAME}" \
+            auchan.zip \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
+
+      - name: Upload test artifact
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: auchan-${{ steps.version.outputs.version }}
+          path: auchan.zip
