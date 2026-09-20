@@ -1,65 +1,26 @@
-name: Inject version
+name: Build release
 
 on:
-  pull_request:
-    branches:
-      - develop
-
   push:
     tags:
       - "v*.*.*"
-
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version à injecter pour le test"
-        required: true
-        default: "0.1.0-test"
-        type: string
 
 permissions:
   contents: write
 
 jobs:
   build-release:
-    name: Build release
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Get version from tag
-      #   id: version
-      #   shell: bash
-      #   run: |
-      #     VERSION="${GITHUB_REF_NAME#v}"
-
-      #     if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
-      #       echo "Invalid version: $VERSION"
-      #       exit 1
-      #     fi
-
-      #     echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-      #     echo "Version: $VERSION"
-
       - name: Get version
         id: version
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            VERSION="${GITHUB_REF_NAME#v}"
-
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            VERSION="${{ inputs.version }}"
-
-          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            VERSION="0.0.0-pr.${{ github.event.pull_request.number }}"
-
-          else
-            echo "Unsupported event: ${{ github.event_name }}"
-            exit 1
-          fi
+          VERSION="${GITHUB_REF_NAME#v}"
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Version: $VERSION"
@@ -75,24 +36,22 @@ jobs:
 
           path = Path("custom_components/auchan/manifest.json")
 
-          with path.open("r", encoding="utf-8") as file:
-              manifest = json.load(file)
+          manifest = json.loads(
+              path.read_text(encoding="utf-8")
+          )
 
           manifest["version"] = os.environ["VERSION"]
 
-          with path.open("w", encoding="utf-8") as file:
-              json.dump(
+          path.write_text(
+              json.dumps(
                   manifest,
-                  file,
                   indent=2,
                   ensure_ascii=False,
-              )
-              file.write("\n")
-
-          print(
-              f"Injected version "
-              f"{manifest['version']} into {path}"
+              ) + "\n",
+              encoding="utf-8",
           )
+
+          print(f"Injected version: {manifest['version']}")
           PY
 
       - name: Verify manifest
@@ -104,14 +63,14 @@ jobs:
           import os
           from pathlib import Path
 
-          path = Path("custom_components/auchan/manifest.json")
-
           manifest = json.loads(
-              path.read_text(encoding="utf-8")
+              Path(
+                  "custom_components/auchan/manifest.json"
+              ).read_text(encoding="utf-8")
           )
 
           expected = os.environ["VERSION"]
-          actual = manifest.get("version")
+          actual = manifest["version"]
 
           if actual != expected:
               raise RuntimeError(
@@ -126,8 +85,11 @@ jobs:
           cd custom_components/auchan
           zip -r ../../auchan.zip .
 
+      - name: Verify archive
+        run: |
+          unzip -l auchan.zip
+
       - name: Create GitHub Release
-        if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -136,10 +98,3 @@ jobs:
             auchan.zip \
             --title "${GITHUB_REF_NAME}" \
             --generate-notes
-
-      - name: Upload test artifact
-        if: github.event_name != 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: auchan-${{ steps.version.outputs.version }}
-          path: auchan.zip
