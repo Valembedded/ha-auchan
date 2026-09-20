@@ -130,7 +130,7 @@ jobs:
             --generate-notes
 
       - name: Upload test artifact
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'push'
         uses: actions/upload-artifact@v4
         with:
           name: auchan-${{ steps.version.outputs.version }}
