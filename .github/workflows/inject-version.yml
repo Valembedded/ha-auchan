@@ -3,7 +3,7 @@ name: Inject version
 on:
   pull_request:
     branches:
-      - auchan/oauth
+      - develop
 
   push:
     tags:
