@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Connexion Auchan</title>
+
+    <style>
+        :root {
+            color-scheme: light;
+            --auchan-red: #e30613;
+            --auchan-red-dark: #bd0010;
+            --background: #f5f6f8;
+            --card: #ffffff;
+            --text: #23262b;
+            --muted: #6b7280;
+            --border: #e7e9ed;
+            --success: #22a06b;
+            --error: #d92d20;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            color: var(--text);
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(227, 6, 19, 0.08),
+                    transparent 38%
+                ),
+                var(--background);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 440px;
+
+            padding: 42px 38px 36px;
+
+            text-align: center;
+
+            background: var(--card);
+
+            border: 1px solid var(--border);
+            border-radius: 24px;
+
+            box-shadow:
+                0 20px 45px rgba(0, 0, 0, 0.07),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+
+            animation: appear 0.45s ease-out;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .logo-container {
+            width: 170px;
+            height: 64px;
+
+            margin: 0 auto 26px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+
+            box-shadow:
+                0 8px 22px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo {
+            width: 132px;
+            height: auto;
+            display: block;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            margin: 0 auto 30px;
+
+            max-width: 330px;
+
+            color: var(--muted);
+
+            font-size: 15px;
+            line-height: 1.55;
+        }
+
+        .status-box {
+            min-height: 128px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            padding: 22px;
+
+            background: #fafafa;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+
+            transition:
+                border-color 0.25s ease,
+                background 0.25s ease;
+        }
+
+        .spinner {
+            width: 38px;
+            height: 38px;
+
+            margin-bottom: 18px;
+
+            border: 4px solid #eceef1;
+            border-top-color: var(--auchan-red);
+            border-radius: 50%;
+
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-icon {
+            display: none;
+
+            width: 44px;
+            height: 44px;
+
+            margin-bottom: 16px;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        #status {
+            margin: 0;
+
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .status-box.success {
+            background: #f2fbf7;
+            border-color: rgba(34, 160, 107, 0.25);
+        }
+
+        .status-box.success .spinner {
+            display: none;
+        }
+
+        .status-box.success .status-icon {
+            display: flex;
+
+            color: #ffffff;
+            background: var(--success);
+        }
+
+        .status-box.error {
+            background: #fff5f4;
+            border-color: rgba(217, 45, 32, 0.25);
+        }
+
+        .status-box.error .spinner {
+            display: none;
+        }
+
+        .status-box.error .status-icon {
+            display: flex;
+
+            color: #ffffff;
+            background: var(--error);
+        }
+
+        .footer {
+            margin-top: 26px;
+
+            color: #9ca3af;
+
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .brand-line {
+            width: 38px;
+            height: 4px;
+
+            margin: 24px auto 0;
+
+            background: var(--auchan-red);
+            border-radius: 999px;
+        }
+
+        @media (max-width: 520px) {
+            body {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 34px 24px 30px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card {
+                animation: none;
+            }
+
+            .spinner {
+                animation-duration: 1.5s;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="card">
+
+    <div class="logo-container" aria-label="Auchan">
+        <svg
+            class="logo"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 116 28"
+            role="img"
+            aria-label="Auchan">
+            <path
+                fill="#D6180B"
+                fill-rule="evenodd"
+                d="M91.662 22.316c-.6.557-1.336 1.148-2.666 1.148-1.468 0-2.293-1.356-2.293-3.965 0-3.199.906-4.798 2.654-4.798 1.014 0 1.505.07 2.305.243v7.372zM81.14 19.708c0 5.633 2.098 8.067 6.156 8.067 2.483 0 4.196-.827 5.14-2.183l.28 1.85h4.345v-16.01c-1.6-.557-3.765-1.043-7.576-1.043-5.422 0-8.345 3.303-8.345 9.32zm29.111-9.32c-2.833 0-4.483.87-5.672 2.193l-.356-1.843h-4.362V27.44h5.4V15.85c.4-.556 1.672-1.148 2.652-1.148 1.608 0 2.548.87 2.548 2.434v10.306h5.4V16.405c0-4.034-1.833-6.016-5.61-6.016zm-36.693 0c-2.239 0-3.697.523-4.897 1.426v-7.24h-5.4V27.44h5.4V15.85c.4-.556 1.572-1.148 2.552-1.148 1.609 0 2.448.87 2.448 2.434v10.306h5.6V16.405c0-4.034-1.891-6.016-5.703-6.016zM56.884 23.15c-2.693 0-4.093-1.668-4.093-4.207 0-2.433 1.4-3.929 4.058-3.929 1.434 0 2.588.382 3.602 1.043l.77-4.556c-1.47-.626-3.043-1.112-5.7-1.112-5.421 0-8.395 3.094-8.395 8.763 0 5.702 2.798 8.623 8.255 8.623 2.622 0 5.141-.799 6.19-1.495l-.77-4.242c-1.224.626-2.413 1.112-3.917 1.112zm-17.222-.834c-.4.557-1.573 1.148-2.553 1.148-1.608 0-2.447-.87-2.447-2.434V10.738h-5.6V21.76c0 4.034 1.862 6.015 5.674 6.015 2.834 0 4.5-.862 5.688-2.183l.372 1.85h4.466V10.737h-5.6v11.578zm-22.233-.46l1.99 5.585h1.468l-2.102-5.853a9.588 9.588 0 01-1.356.267M0 27.441h6.633l2.147-6.76H2.308A129.25 129.25 0 000 27.44m8.74-15.22l3.83-3.198c.627-1.697 1.282-3.397 1.963-4.845.34.772.662 1.544 1 2.366 1.478-1.214 2.449-1.874 2.498-1.906l.02-.014a6.821 6.821 0 011.966-.851A135.874 135.874 0 0018.232 0H10.8c-.62 1.193-2.931 5.966-5.634 12.528H7.9c.445 0 .668-.164.84-.308m15.55 5.31a8.98 8.98 0 01-4.184 3.573l2.253 6.338h6.555c-1.31-3.977-2.715-7.564-4.034-10.925-.184.365-.38.675-.59 1.013M22.347 6.847c.189 0 .365.044.525.121-.032-.005-.065-.011-.098-.011a.704.704 0 00-.704.7.7.7 0 00.704.699.7.7 0 00.702-.698c0-.024-.003-.045-.005-.066.059.142.093.298.093.463 0 .666-.545 1.208-1.217 1.208a1.214 1.214 0 01-1.217-1.208c0-.67.546-1.208 1.217-1.208zm-6.794 13.635c1.602 0 5.425-.407 7.494-3.73 2.072-3.325 2.794-8.6 2.794-8.6l2.268-1.075c.142-.071.105-.316-.068-.316h-2.445c-.383-.597-1.71-1.867-3.665-1.867-1.16 0-2.176.327-3.086.92 0 0-1.327.904-3.257 2.564L9.68 13.293c-.455.38-1.012.627-1.782.627H.465c-.21 0-.14.176-.106.278.524 1.597 1.923 3.022 4.365 3.022L2.98 19.017c-.069.068-.069.272.104.272h6.632c4.793 0 7.74-2.098 9.677-5.005.166-.249.322-.514.47-.77.073.034.08.104.046.172-.489 1.18-1.71 3.572-3.944 4.994-.77.45-1.014.589-2.096 1.004-.074.032-.104.15-.07.252l2.684 7.505h1.465l-2.46-6.96h.067z"
+            />
+            </svg>
+        </div>
+
+        <h1>Connexion à Auchan</h1>
+
+        <p class="subtitle">
+            Votre authentification est presque terminée.
+            Nous finalisons la connexion avec Home Assistant.
+        </p>
+
+        <div
+            id="statusBox"
+            class="status-box"
+            role="status"
+            aria-live="polite"
+        >
+
+            <div class="spinner"></div>
+
+            <div
+                id="statusIcon"
+                class="status-icon"
+                aria-hidden="true"
+            >
+                ✓
+            </div>
+
+            <p id="status">
+                Finalisation de la connexion à Auchan…
+            </p>
+
+        </div>
+
+        <div class="brand-line"></div>
+
+        <p class="footer">
+            Cette fenêtre se fermera automatiquement
+            une fois l'authentification terminée.
+        </p>
+
+    </main>
+
+    <script>
+
+    (async () => {
+
+        const status =
+            document.getElementById("status");
+
+        const statusBox =
+            document.getElementById("statusBox");
+
+        const statusIcon =
+            document.getElementById("statusIcon");
+
+        const setSuccess = (message) => {
+
+            statusBox.classList.remove("error");
+            statusBox.classList.add("success");
+
+            statusIcon.textContent = "✓";
+            status.textContent = message;
+        };
+
+        const setError = (message) => {
+
+            statusBox.classList.remove("success");
+            statusBox.classList.add("error");
+
+            statusIcon.textContent = "!";
+            status.textContent = message;
+        };
+
+        try {
+
+            const fragment =
+                new URLSearchParams(
+                    window.location.hash.substring(1)
+                );
+
+            const query =
+                new URLSearchParams(
+                    window.location.search
+                );
+
+            const flowId =
+                query.get("flow_id");
+
+            const code =
+                fragment.get("code");
+
+            const state =
+                fragment.get("state");
+
+            const error =
+                fragment.get("error");
+
+            const errorDescription =
+                fragment.get(
+                    "error_description"
+                );
+
+            /*
+             * Remove OAuth information from
+             * the address bar immediately.
+             */
+            history.replaceState(
+                null,
+                "",
+                window.location.pathname
+                + "?flow_id="
+                + encodeURIComponent(
+                    flowId || ""
+                )
+            );
+
+            if (!flowId) {
+                throw new Error(
+                    "Identifiant du flux manquant."
+                );
+            }
+
+            if (!state) {
+                throw new Error(
+                    "État OAuth manquant."
+                );
+            }
+
+            if (!code && !error) {
+                throw new Error(
+                    "Code OAuth manquant."
+                );
+            }
+
+            const response =
+                await fetch(
+                    window.location.pathname,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            flow_id:
+                                flowId,
+
+                            code:
+                                code,
+
+                            state:
+                                state,
+
+                            error:
+                                error,
+
+                            error_description:
+                                errorDescription
+                        })
+                    }
+                );
+
+            const result =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error
+                    || (
+                        "Erreur Home Assistant "
+                        + response.status
+                    )
+                );
+            }
+
+            setSuccess(
+                "Connexion réussie ! "
+                + "Vous pouvez retourner à Home Assistant."
+            );
+
+            /*
+             * Home Assistant continues the
+             * config flow in the original dialog.
+             */
+            setTimeout(
+                () => window.close(),
+                5000
+            );
+
+        } catch (err) {
+
+            console.error(err);
+
+            setError(
+                "Impossible de terminer la connexion : "
+                + err.message
+            );
+        }
+
+    })();
+
+    </script>
+
+</body>
+
+</html>

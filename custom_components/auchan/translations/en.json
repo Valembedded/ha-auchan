@@ -1,0 +1,23 @@
+{
+  "title": "Auchan",
+  "config": {
+    "step": {
+      "welcome": {
+        "title": "Login successful",
+        "description": "Hello, {name}!\n\nYour Auchan account is now connected.\n\nAccount: **{email}**\n\nAuchan ID: **{rcw_id}**."
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate Auchan",
+        "description": "Your Auchan session has expired or is no longer valid. Sign in again to continue using the integration."
+      }
+    },
+    "abort": {
+      "account_already_configured": "An Auchan account is already configured in Home Assistant. This integration only supports one connected account.",
+      "already_configured": "This Auchan account is already configured in Home Assistant.",
+      "oauth_failed": "Authentication with Auchan failed.",
+      "cannot_connect": "Authentication succeeded, but Home Assistant could not retrieve your Auchan account information.",
+      "reauth_successful": "Your Auchan account was successfully reauthenticated.",
+      "unique_id_mismatch": "The Auchan account used does not match the currently configured account."
+    }
+  }
+}
