@@ -1,3 +1,6 @@
 {
-  "name": "Auchan"
+  "name": "Auchan",
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "auchan.zip"
 }

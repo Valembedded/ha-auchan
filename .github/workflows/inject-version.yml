@@ -1,0 +1,100 @@
+name: Build release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Inject version into manifest
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path("custom_components/auchan/manifest.json")
+
+          manifest = json.loads(
+              path.read_text(encoding="utf-8")
+          )
+
+          manifest["version"] = os.environ["VERSION"]
+
+          path.write_text(
+              json.dumps(
+                  manifest,
+                  indent=2,
+                  ensure_ascii=False,
+              ) + "\n",
+              encoding="utf-8",
+          )
+
+          print(f"Injected version: {manifest['version']}")
+          PY
+
+      - name: Verify manifest
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path(
+                  "custom_components/auchan/manifest.json"
+              ).read_text(encoding="utf-8")
+          )
+
+          expected = os.environ["VERSION"]
+          actual = manifest["version"]
+
+          if actual != expected:
+              raise RuntimeError(
+                  f"Version mismatch: {actual} != {expected}"
+              )
+
+          print(f"Manifest version OK: {actual}")
+          PY
+
+      - name: Create release archive
+        run: |
+          cd custom_components/auchan
+          zip -r ../../auchan.zip .
+
+      - name: Verify archive
+        run: |
+          unzip -l auchan.zip
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create \
+            "${GITHUB_REF_NAME}" \
+            auchan.zip \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes
