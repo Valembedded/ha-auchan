@@ -5,19 +5,24 @@
       "welcome": {
         "title": "Login successful",
         "description": "Hello, {name}!\n\nYour Auchan account is now connected.\n\nAccount: **{email}**\n\nAuchan ID: **{rcw_id}**."
-      },
-      "reauth_confirm": {
-        "title": "Reauthenticate Auchan",
-        "description": "Your Auchan session has expired or is no longer valid. Sign in again to continue using the integration."
       }
     },
     "abort": {
       "account_already_configured": "An Auchan account is already configured in Home Assistant. This integration only supports one connected account.",
       "already_configured": "This Auchan account is already configured in Home Assistant.",
-      "oauth_failed": "Authentication with Auchan failed.",
+      "authorize_url_timeout": "Timeout while generating the Auchan authorization URL.",
       "cannot_connect": "Authentication succeeded, but Home Assistant could not retrieve your Auchan account information.",
+      "no_url_available": "No URL available. For information about this error, [check the help section]({docs_url}).",
+      "oauth_error": "Received invalid token data from Auchan.",
+      "oauth_failed": "Authentication with Auchan failed.",
+      "oauth_timeout": "Timeout while retrieving the Auchan access token.",
+      "oauth_unauthorized": "Auchan refused the authorization while obtaining the access token.",
       "reauth_successful": "Your Auchan account was successfully reauthenticated.",
-      "unique_id_mismatch": "The Auchan account used does not match the currently configured account."
+      "unique_id_mismatch": "The Auchan account used does not match the currently configured account.",
+      "user_rejected_authorize": "Auchan account linking was rejected: {error}"
+    },
+    "create_entry": {
+      "default": "Your Auchan account was successfully added."
     }
   }
 }

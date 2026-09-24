@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1"
     >
 
-    <title>Connexion Auchan</title>
+    <title data-i18n="title">Connexion Auchan</title>
 
     <style>
         :root {
@@ -297,9 +297,9 @@
             </svg>
         </div>
 
-        <h1>Connexion à Auchan</h1>
+        <h1 data-i18n="heading">Connexion à Auchan</h1>
 
-        <p class="subtitle">
+        <p class="subtitle" data-i18n="subtitle">
             Votre authentification est presque terminée.
             Nous finalisons la connexion avec Home Assistant.
         </p>
@@ -321,7 +321,7 @@
                 ✓
             </div>
 
-            <p id="status">
+            <p id="status" data-i18n="finalizing">
                 Finalisation de la connexion à Auchan…
             </p>
 
@@ -329,7 +329,7 @@
 
         <div class="brand-line"></div>
 
-        <p class="footer">
+        <p class="footer" data-i18n="footer">
             Cette fenêtre se fermera automatiquement
             une fois l'authentification terminée.
         </p>
@@ -337,6 +337,69 @@
     </main>
 
     <script>
+
+    const MESSAGES = {
+        fr: {
+            title: "Connexion Auchan",
+            heading: "Connexion à Auchan",
+            subtitle: "Votre authentification est presque terminée. Nous finalisons la connexion avec Home Assistant.",
+            finalizing: "Finalisation de la connexion à Auchan…",
+            footer: "Cette fenêtre se fermera automatiquement une fois l'authentification terminée.",
+            success: "Connexion réussie ! Vous pouvez retourner à Home Assistant.",
+            failure: "Impossible de terminer la connexion : {message}",
+            missingFlowId: "Identifiant du flux manquant.",
+            missingState: "État OAuth manquant.",
+            missingCode: "Code OAuth manquant.",
+            httpError: "Erreur Home Assistant {status}",
+            errors: {
+                invalid_json: "La requête envoyée à Home Assistant est invalide.",
+                missing_flow_id: "Identifiant du flux manquant.",
+                missing_state: "État OAuth manquant.",
+                missing_code: "Code OAuth manquant.",
+                unknown_or_expired_flow: "La configuration a expiré ou n'existe plus. Recommencez l'ajout de l'intégration depuis Home Assistant.",
+                flow_error: "Une erreur est survenue dans Home Assistant pendant la configuration."
+            }
+        },
+        en: {
+            title: "Auchan login",
+            heading: "Signing in to Auchan",
+            subtitle: "Your authentication is almost complete. We are finishing the connection with Home Assistant.",
+            finalizing: "Finishing the connection to Auchan…",
+            footer: "This window will close automatically once authentication is complete.",
+            success: "Login successful! You can return to Home Assistant.",
+            failure: "Unable to complete the login: {message}",
+            missingFlowId: "Missing flow identifier.",
+            missingState: "Missing OAuth state.",
+            missingCode: "Missing OAuth code.",
+            httpError: "Home Assistant error {status}",
+            errors: {
+                invalid_json: "The request sent to Home Assistant is invalid.",
+                missing_flow_id: "Missing flow identifier.",
+                missing_state: "Missing OAuth state.",
+                missing_code: "Missing OAuth code.",
+                unknown_or_expired_flow: "The setup has expired or no longer exists. Start adding the integration again from Home Assistant.",
+                flow_error: "An error occurred in Home Assistant during setup."
+            }
+        }
+    };
+
+    const lang =
+        (navigator.languages || [navigator.language])
+            .map((l) => (l || "").slice(0, 2).toLowerCase())
+            .find((l) => l in MESSAGES)
+        || "en";
+
+    const t = (key, params = {}) =>
+        MESSAGES[lang][key].replace(
+            /\{(\w+)\}/g,
+            (match, name) => (name in params ? params[name] : match)
+        );
+
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+        el.textContent = t(el.dataset.i18n);
+    });
 
     (async () => {
 
@@ -412,19 +475,19 @@
 
             if (!flowId) {
                 throw new Error(
-                    "Identifiant du flux manquant."
+                    t("missingFlowId")
                 );
             }
 
             if (!state) {
                 throw new Error(
-                    "État OAuth manquant."
+                    t("missingState")
                 );
             }
 
             if (!code && !error) {
                 throw new Error(
-                    "Code OAuth manquant."
+                    t("missingCode")
                 );
             }
 
@@ -463,17 +526,13 @@
 
             if (!response.ok) {
                 throw new Error(
-                    result.error
-                    || (
-                        "Erreur Home Assistant "
-                        + response.status
-                    )
+                    MESSAGES[lang].errors[result.error]
+                    || t("httpError", { status: response.status })
                 );
             }
 
             setSuccess(
-                "Connexion réussie ! "
-                + "Vous pouvez retourner à Home Assistant."
+                t("success")
             );
 
             /*
@@ -490,8 +549,7 @@
             console.error(err);
 
             setError(
-                "Impossible de terminer la connexion : "
-                + err.message
+                t("failure", { message: err.message })
             );
         }
 
